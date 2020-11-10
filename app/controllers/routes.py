@@ -4,6 +4,7 @@ from app.models.forms import LoginForm, DataForm
 from app.models.tables import User, Data_Input
 from flask_login import login_user, logout_user
 import joblib as jb
+import pandas as pd
 
 
 mdl = jb.load('app/models/mdl.pkl.z')
@@ -50,6 +51,7 @@ def login():
         print(form.errors)
     return render_template("login.html", form=form)
 
+#------------------------  Case 1: Many requests input in database -------------------------------
 @app.route("/get_data", methods=['GET', 'POST'])
 def get_data():
 
@@ -70,6 +72,18 @@ def more_data():
         return render_template('more_data.html')
     else:
         return redirect(url_for('get_data'))
+
+#------------------------ Case II: One request at a time ------------------------------------
+@app.route("/get_data_second", methods=['GET', 'POST'])
+def get_data_second():
+
+    if request.method == 'GET':
+        return render_template('get_data.html')
+    else:
+        in_data = Data_Input(data_input=request.form["data_input"])
+        db.session.add(in_data)
+        db.session.commit()
+    return redirect(url_for("result"))
         
 
 @app.route("/result", methods=['GET', 'POST'])
@@ -78,17 +92,17 @@ def result():
     mdl = jb.load('app/models/mdl.pkl.z')
 
     if request.method == 'GET':
-        df = db.session.execute('SELECT * FROM data_model ORDER BY ID DESC LIMIT 1')
+        df = db.session.execute('SELECT * FROM data_input ORDER BY ID DESC LIMIT 1')
         df_pd = pd.DataFrame(df)
         title = df_pd.iat[0, 1]
 
         result = mdl.predict_proba([title])[0][1]
-        db.session.query(Data_Model).delete()
+        db.session.query(Data_Input).delete()
         db.session.commit()
         
         return render_template("result.html", result=result, title=title)
     else:   
-        return redirect(url_for("get_data"))
+        return redirect(url_for("get_data_second"))
 
 #Logout
 @app.route('/logout')
