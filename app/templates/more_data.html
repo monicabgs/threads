@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<center><h2>Dado armazenado com sucesso!</h2></center>
+
+<form action="", method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <center><button type="submit" class="btn btn-danger">Nova consulta</button></center></center>
+   </form>
+</div>
+{% endblock %}
