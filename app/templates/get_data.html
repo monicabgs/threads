@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="col-md-4 col-md-offset-4">
+  <h2>Consulta - Clickbait</h2>
+<form action="", method="POST">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <dl>
+        <dt>Título:
+        <dd></dd><input type=text placeholder="Digite o Título" name="data_input" required/>
+    </dl>
+    <button type="submit" class="btn btn-danger"> Enter</button>
+ </form>
+{% endblock %}
