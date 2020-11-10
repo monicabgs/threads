@@ -21,4 +21,4 @@ loginManager.init_app(app)
 csfr = CsrfProtect(app)
 
 from app.models import tables
-from app.controllers import routes
+from app.controllers import routes, threads_routes

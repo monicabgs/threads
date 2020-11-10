@@ -59,6 +59,8 @@ def get_data():
         return render_template('get_data.html')
     else:
         in_data = Data_Input(data_input=request.form["data_input"])
+        print(type(in_data))
+        print(in_data)
         db.session.add(in_data)
         db.session.commit()
             
@@ -95,6 +97,12 @@ def result():
         df = db.session.execute('SELECT * FROM data_input ORDER BY ID DESC LIMIT 1')
         df_pd = pd.DataFrame(df)
         title = df_pd.iat[0, 1]
+        print(type(title))
+        print(title)
+    
+    # Entrada do modelo - request (string): 
+    # Recebe várias requisições simultâneamente: 
+    # target threads = title
 
         result = mdl.predict_proba([title])[0][1]
         db.session.query(Data_Input).delete()
