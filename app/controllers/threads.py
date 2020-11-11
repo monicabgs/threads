@@ -8,7 +8,7 @@ from functions import target, timeit
 class Worker(Thread):
     """Hand down of Thread's superclass.
 
-    -Subscribing the run's function because the event must
+    Subscribing the run's function because the event must
     wait for requests to be in queue.
     """
 
@@ -23,8 +23,8 @@ class Worker(Thread):
         def run(self):
         event.wait()
         while not self.queue.empty():
-            pokemon = self.queue.get()
-            print(self.name, pokemon)
+            request = self.queue.get()
+            print(self.name, request)
             if response == 'Kill':
                 self.queue.put(response)
                 self._stoped = True
