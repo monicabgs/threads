@@ -5,7 +5,7 @@ from app.models.tables import User, Data_Input, Execution
 from flask_login import login_user, logout_user
 import joblib as jb
 import pandas as pd
-
+import time
 
 mdl = jb.load('app/models/mdl.pkl.z')
 
@@ -80,6 +80,8 @@ def get_data():
 #Func 2: Result
 @app.route("/result", methods=['GET', 'POST'])
 def result():
+    # Time to run without threads: 0.020104744000000174
+    start = time.process_time()
 
     mdl = jb.load('app/models/mdl.pkl.z')
 
@@ -91,15 +93,30 @@ def result():
         result = mdl.predict_proba([title])[0][1]
         db.session.query(Data_Input).delete()
         db.session.commit()
+        print(time.process_time() - start)
         
         return render_template("result.html", result=result, title=title)
 
+# Func II Thread
+@app.route('/execution')
 def execution_db():
-    
-    e = Execution("T722913", "python", "eeeeeee", "running")
-    db.session.add(e)
+    # Time to insert 4 data in db 0.016995284000000055
+
+    start = time.process_time()
+    t5 = Execution("t5", "t5", "t5", "t5")
+    t6 = Execution("t6", "t6", "t6", "t6")
+    t7 = Execution("t7", "t7", "t7", "t7")
+    t4 = Execution("t4", "t4", "t4", "t4")
+
+    db.session.add(t6)
+    db.session.add(t5)
+    db.session.add(t4)
+    db.session.add(t7)
+
     db.session.commit()
-        
+    
+    print(time.process_time() - start)
+    
     return "OK"
 
 """
@@ -127,14 +144,6 @@ def running_model():
     result = mdl.predict_proba([title])[0][1]
     return render_template("result.html", result=result, title=title)
 """
-# Func II Thread
-@app.route("/exec")
-def execution_db():
-    e = Execution("T722913", "python", "eeeeeee", "running")
-    db.session.add(e)
-    db.session.commit()
-        
-    return "OK"
 
 #Logout
 @app.route('/logout')
