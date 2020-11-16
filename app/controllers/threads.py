@@ -23,11 +23,11 @@ class Worker(Thread):
             while not self.queue.empty():
                 request = self.queue.get()
                 print(self.name, request)
-                if response == 'Kill':
+                if request == 'Kill':
                     self.queue.put(response)
                     self._stoped = True
                 break
-                self._target(response)
+                self._target(request)
 
         def join(self):
             while not self._stoped:

@@ -9,6 +9,8 @@ import pandas as pd
 import time
 
 mdl = jb.load('app/models/mdl.pkl.z')
+event = Event()
+queue = Queue(maxsize=2)
 
 @loginManager.user_loader
 def load_user(id):
@@ -93,6 +95,8 @@ def result():
         df = db.session.execute('SELECT * FROM data_input ORDER BY ID DESC LIMIT 1')
         df_pd = pd.DataFrame(df)
         title = df_pd.iat[0, 1]
+
+        queue = 
 
         result = mdl.predict_proba([title])[0][1]
         thread = Worker(target = execution_db)
