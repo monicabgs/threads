@@ -1,10 +1,10 @@
 from flask import render_template, flash, request, redirect, url_for, session
 from app.models.forms import DataForm
-from app.models.tables import Data_Input, User, Execution
+from app.models.tables import User, Data_Input
 from app import app, db
 import pandas as pd
 import joblib as jb
-from app.controllers,threads import Worker
+#from app.controllers.threads import Worker
 
 
 #Rodar modelo
