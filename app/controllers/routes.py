@@ -3,6 +3,7 @@ from app import db, app, loginManager
 from app.models.forms import LoginForm, DataForm
 from app.models.tables import User, Data_Input, Execution
 from flask_login import login_user, logout_user
+from .threads import Worker
 import joblib as jb
 import pandas as pd
 import time
@@ -67,6 +68,7 @@ def login():
 def get_data():
 
     if request.method == 'GET':
+        
         return render_template('get_data.html')
     else:
         in_data = Data_Input(data_input=request.form["data_input"])
@@ -80,8 +82,10 @@ def get_data():
 #Func 2: Result
 @app.route("/result", methods=['GET', 'POST'])
 def result():
-    # Time to run without threads: 0.020104744000000174
-    start = time.process_time()
+    # Time to run without threads: 0.011029571999999987
+    # Time to run with threads: 0.1369100889999999
+
+    main_start = time.process_time()
 
     mdl = jb.load('app/models/mdl.pkl.z')
 
@@ -91,31 +95,37 @@ def result():
         title = df_pd.iat[0, 1]
 
         result = mdl.predict_proba([title])[0][1]
+        thread = Worker(target = execution_db)
+        thread.run()
         db.session.query(Data_Input).delete()
         db.session.commit()
-        print(time.process_time() - start)
+        print("Main time:", time.process_time() - main_start)
         
         return render_template("result.html", result=result, title=title)
 
 # Func II Thread
-@app.route('/execution')
+@app.route('/exec')
 def execution_db():
-    # Time to insert 4 data in db 0.016995284000000055
+    # Time without threads = 0.11640994299999996
+    # Time with threads = 0.12400040699999992
 
-    start = time.process_time()
-    t5 = Execution("t5", "t5", "t5", "t5")
-    t6 = Execution("t6", "t6", "t6", "t6")
-    t7 = Execution("t7", "t7", "t7", "t7")
-    t4 = Execution("t4", "t4", "t4", "t4")
+    exec_start = time.process_time()
+    tpoooo = Execution("tpoooo", "tpoooo", "tpoooo", "tpoooo")
+    tmoooo = Execution("tmoooo", "tmoooo", "tmoooo", "tmoooo")
+    tnxooo = Execution("tnxooo", "tnxooo", "tnxooo", "tnxooo")
+    tozooo = Execution("tozooo", "tozooo", "tozooo", "tozooo")
 
-    db.session.add(t6)
-    db.session.add(t5)
-    db.session.add(t4)
-    db.session.add(t7)
+    db.session.add(tpoooo)
+    db.session.add(tmoooo)
+    db.session.add(tnxooo)
+    db.session.add(tozooo)
 
     db.session.commit()
+    time.sleep(10)
+    db.session.query(Execution).delete()
+    db.session.commit()
     
-    print(time.process_time() - start)
+    print("Execution time:", time.process_time() - exec_start)
     
     return "OK"
 

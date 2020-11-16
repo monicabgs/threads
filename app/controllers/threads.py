@@ -11,10 +11,9 @@ class Worker(Thread):
     wait for requests to be in queue."""
     
 
-    def __init__(self, target, queue, *, name='Worker'):
+    def __init__(self, target, *, name='Worker'):
         super().__init__()
         self.name = name
-        self.queue = queue
         self._target = target
         self._stoped = False 
         print(self.name, 'started')
