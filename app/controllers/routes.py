@@ -4,6 +4,8 @@ from app.models.forms import LoginForm, DataForm
 from app.models.tables import User, Data_Input, Execution
 from flask_login import login_user, logout_user
 from .threads import Worker
+from threading import Event
+from queue import Queue
 import joblib as jb
 import pandas as pd
 import time
@@ -96,7 +98,9 @@ def result():
         df_pd = pd.DataFrame(df)
         title = df_pd.iat[0, 1]
 
-        queue = 
+        queue = Queue()
+        q = queue.put(title)
+        print(q)
 
         result = mdl.predict_proba([title])[0][1]
         thread = Worker(target = execution_db)
