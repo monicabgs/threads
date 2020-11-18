@@ -19,16 +19,7 @@ class Worker(Thread):
         print(self.name, 'started')
 
         def run(self):
-            event.wait()
-            while not self.queue.empty():
-                request = self.queue.get()
-                print(self.name, request)
-                if request == 'Kill':
-                    self.queue.put(response)
-                    self._stoped = True
-                break
-                self._target(request)
+            self._target()
 
         def join(self):
-            while not self._stoped:
-                sleep(0.1)
+            self._stoped = True

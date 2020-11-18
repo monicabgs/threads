@@ -26,7 +26,7 @@ def db_create_all():
 @app.route("/user/<info>")
 @app.route("/user/", defaults={"info":None})
 def teste(info):
-    i = User("T721913", "python")
+    i = User("T721914", "python")
     db.session.add(i)
     db.session.commit()
         
@@ -68,28 +68,27 @@ def login():
     return render_template("login.html", form=form)
 
 #Func 1: Get data
-@app.route("/get_data", methods=['GET', 'POST'])
+@app.route("/get_data/", methods=['GET', 'POST'])
 def get_data():
+    #Tempo sem threads: 0.00228s
 
-    if request.method == 'GET':
-        
+    get_data_start_time = time.process_time()
+    if request.method == 'GET':    
         return render_template('get_data.html')
     else:
         in_data = Data_Input(data_input=request.form["data_input"])
-        print(type(in_data))
-        print(in_data)
         db.session.add(in_data)
         db.session.commit()
-            
+    print("Get data time:", time.process_time() - get_data_start_time)
     return redirect(url_for("result"))
 
 #Func 2: Result
 @app.route("/result", methods=['GET', 'POST'])
 def result():
-    # Time to run without threads: 0.011029571999999987
+    # Tempo sem threads: 0.01219s + 0,00228 = 0,01447s
     # Time to run with threads: 0.1369100889999999
 
-    main_start = time.process_time()
+    result_start_time = time.process_time()
 
     mdl = jb.load('app/models/mdl.pkl.z')
 
@@ -98,26 +97,24 @@ def result():
         df_pd = pd.DataFrame(df)
         title = df_pd.iat[0, 1]
 
-        queue = Queue()
-        q = queue.put(title)
-        print(q)
-
         result = mdl.predict_proba([title])[0][1]
         thread = Worker(target = execution_db)
         thread.run()
         db.session.query(Data_Input).delete()
         db.session.commit()
-        print("Main time:", time.process_time() - main_start)
+        print("Result time:", time.process_time() - result_start_time)
         
         return render_template("result.html", result=result, title=title)
 
 # Func II Thread
-@app.route('/exec')
+#@app.route('/exec')
 def execution_db():
-    # Time without threads = 0.11640994299999996
-    # Time with threads = 0.12400040699999992
+    # Tempo sem threads = 0.13984s
+    # Tempo total sem threads = 0.00228 + 0.01219 + 0.13984 = 0.15431s
 
-    exec_start = time.process_time()
+    # Tempo com threads = 0.12400040699999992
+
+    exec_start_time = time.process_time()
     tpoooo = Execution("tpoooo", "tpoooo", "tpoooo", "tpoooo")
     tmoooo = Execution("tmoooo", "tmoooo", "tmoooo", "tmoooo")
     tnxooo = Execution("tnxooo", "tnxooo", "tnxooo", "tnxooo")
@@ -133,7 +130,7 @@ def execution_db():
     db.session.query(Execution).delete()
     db.session.commit()
     
-    print("Execution time:", time.process_time() - exec_start)
+    print("Execution time:", time.process_time() - exec_start_time)
     
     return "OK"
 
