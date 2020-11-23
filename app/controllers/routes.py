@@ -74,6 +74,7 @@ def get_response(url):
 @app.route("/get_data/", methods=['GET', 'POST'])
 def get_data():
     # Tempo sem threads: 0.0128s
+    # Tempo com threads: 0.0128s
 
     start = time.perf_counter()
 
@@ -98,7 +99,7 @@ def get_data():
 def result():
 
     # Tempo sem threads: 0.0368s  
-    # Tempo com threads: 10.063s 
+    # Tempo com threads: 0.04377s 
 
     start = time.perf_counter()
 
@@ -126,7 +127,7 @@ def result():
 #@app.route('/exec')
 def execution_db():
     # Tempo sem threads = 10.0487s 
-    # Tempo com threads = 10.0253s
+    # Tempo com threads = 10.1384s
 
     db.session.query(Execution).delete()
     db.session.commit()
@@ -150,7 +151,6 @@ def execution_db():
 
     time.sleep(10)
     
-
     end = time.perf_counter()
     
     print("Execution time:", end - start)
