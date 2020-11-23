@@ -10,3 +10,5 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir,
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 SECRET_KEY = 'nl.4.5@534.3271AnTx67$'
+
+

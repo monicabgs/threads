@@ -1,10 +1,9 @@
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
 from flask_wtf import CsrfProtect
-
 
 app = Flask(__name__)
 app.config.from_object('config')#Aplicar configurações feitas no arquivo (sem o .py)

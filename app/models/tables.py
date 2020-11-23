@@ -49,7 +49,17 @@ class Execution(db.Model):
     __tablename__ = "execution"
 
     id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, unique=True)
+    data_input = db.Column(db.String, nullable=False) 
+    model_result = db.Column(db.String, nullable=False)
     msg_status = db.Column(db.String, nullable=False)
 
-    def __init__(self, msg_status):
+
+    def __init__(self, username, data_input, model_result, msg_status):
+ 
+        self.username = username
+        self.data_input = data_input
+        self.model_result = model_result
         self.msg_status = msg_status
+
+    
