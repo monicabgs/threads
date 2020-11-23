@@ -1,8 +1,5 @@
-from threading import Event, Thread
-from queue import Queue
-from urllib.parse import urljoin
-from requests import get
 
+from threading import Thread
 
 class Worker(Thread):
     """Hand down of Thread's superclass.
@@ -11,7 +8,7 @@ class Worker(Thread):
     wait for requests to be in queue."""
     
 
-    def __init__(self, target, *, name='Worker'):
+    def __init__(self, target, *, name='Thread'):
         super().__init__()
         self.name = name
         self._target = target
@@ -20,6 +17,7 @@ class Worker(Thread):
 
         def run(self):
             self._target()
+                
 
         def join(self):
             self._stoped = True

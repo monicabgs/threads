@@ -4,15 +4,13 @@ from app.models.forms import LoginForm, DataForm
 from app.models.tables import User, Data_Input, Execution
 from flask_login import login_user, logout_user
 from .threads import Worker
-from threading import Event
-from queue import Queue
 import joblib as jb
 import pandas as pd
+import logging
 import time
+#import threading
 
 mdl = jb.load('app/models/mdl.pkl.z')
-event = Event()
-queue = Queue(maxsize=2)
 
 @loginManager.user_loader
 def load_user(id):
@@ -67,28 +65,42 @@ def login():
         print(form.errors)
     return render_template("login.html", form=form)
 
+base_url = 'http://127.0.0.1:5000/get_data'
+
+def get_response(url):
+    response = get(url, stream=True)
+
 #Func 1: Get data
 @app.route("/get_data/", methods=['GET', 'POST'])
 def get_data():
-    #Tempo sem threads: 0.00228s
+    # Tempo sem threads: 0.0128s
+
+    start = time.perf_counter()
 
     get_data_start_time = time.process_time()
     if request.method == 'GET':    
         return render_template('get_data.html')
     else:
+        request_data = request.get_json()
+        logging.info(request_data)
         in_data = Data_Input(data_input=request.form["data_input"])
         db.session.add(in_data)
         db.session.commit()
-    print("Get data time:", time.process_time() - get_data_start_time)
+
+    end = time.perf_counter()
+
+    print("Get data time:", end - start)
+
     return redirect(url_for("result"))
 
 #Func 2: Result
 @app.route("/result", methods=['GET', 'POST'])
 def result():
-    # Tempo sem threads: 0.01219s + 0,00228 = 0,01447s
-    # Time to run with threads: 0.1369100889999999
 
-    result_start_time = time.process_time()
+    # Tempo sem threads: 0.0368s  
+    # Tempo com threads: 10.063s 
+
+    start = time.perf_counter()
 
     mdl = jb.load('app/models/mdl.pkl.z')
 
@@ -98,23 +110,30 @@ def result():
         title = df_pd.iat[0, 1]
 
         result = mdl.predict_proba([title])[0][1]
-        thread = Worker(target = execution_db)
-        thread.run()
         db.session.query(Data_Input).delete()
         db.session.commit()
-        print("Result time:", time.process_time() - result_start_time)
+
+        t = Worker(target=execution_db, name='Thread1')
+        t.start()
+
+        end = time.perf_counter()
+
+        print("Result time:", end - start)
         
         return render_template("result.html", result=result, title=title)
 
 # Func II Thread
 #@app.route('/exec')
 def execution_db():
-    # Tempo sem threads = 0.13984s
-    # Tempo total sem threads = 0.00228 + 0.01219 + 0.13984 = 0.15431s
+    # Tempo sem threads = 10.0487s 
+    # Tempo com threads = 10.0253s
 
-    # Tempo com threads = 0.12400040699999992
+    db.session.query(Execution).delete()
+    db.session.commit()
 
-    exec_start_time = time.process_time()
+    start = time.perf_counter()
+
+
     tpoooo = Execution("tpoooo", "tpoooo", "tpoooo", "tpoooo")
     tmoooo = Execution("tmoooo", "tmoooo", "tmoooo", "tmoooo")
     tnxooo = Execution("tnxooo", "tnxooo", "tnxooo", "tnxooo")
@@ -126,13 +145,16 @@ def execution_db():
     db.session.add(tozooo)
 
     db.session.commit()
+
+    print('Dados de execução gravados na tabela.')
+
     time.sleep(10)
-    db.session.query(Execution).delete()
-    db.session.commit()
     
-    print("Execution time:", time.process_time() - exec_start_time)
+
+    end = time.perf_counter()
     
-    return "OK"
+    print("Execution time:", end - start)
+
 
 """
 # Func I Thread
