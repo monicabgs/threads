@@ -6,7 +6,6 @@ from flask_login import login_user, logout_user
 from .threads import Worker
 import joblib as jb
 import pandas as pd
-import logging
 import time
 #import threading
 
