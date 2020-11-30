@@ -114,7 +114,7 @@ def result():
         db.session.query(Data_Input).delete()
         db.session.commit()
 
-        t = Worker(target=execution_db, name='Thread1')
+        t = Worker(target=execution_db, name='Thread')
         t.start()
 
         end = time.perf_counter()

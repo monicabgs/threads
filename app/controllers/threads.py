@@ -17,6 +17,7 @@ class Worker(Thread):
 
         def run(self):
             self._target()
+            self._stoped = True
                 
 
         def join(self):
